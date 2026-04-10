@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ombor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #151820;
+    --bg3: #1c2030;
+    --card: #1e2232;
+    --border: #2a2f45;
+    --accent: #4f8ef7;
+    --accent2: #38d9a9;
+    --danger: #ff6b6b;
+    --warn: #ffd43b;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Rubik', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header h1 { font-size: 17px; font-weight: 600; }
+  .header p { font-size: 12px; color: var(--muted); }
+
+  /* TABS */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  /* PAGES */
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  /* OSHPAZ SELECT */
+  .oshpaz-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .oshpaz-btn {
+    background: var(--bg3);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .oshpaz-btn.selected {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.12);
+  }
+  .oshpaz-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b4fd4, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    margin: 0 auto 6px;
+    color: #c4b5fd;
+  }
+  .oshpaz-name { font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oshpaz-type { font-size: 10px; color: var(--muted); }
+
+  /* MAHSULOT ROWS */
+  .mahsulot-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mahsulot-row:last-child { border-bottom: none; }
+  .mahsulot-info { flex: 1; }
+  .mahsulot-nom { font-size: 14px; font-weight: 500; }
+  .mahsulot-birlik { font-size: 11px; color: var(--muted); }
+  .qty-ctrl { display: flex; align-items: center; gap: 8px; }
+  .qty-btn {
+    width: 30px; height: 30px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .qty-btn:active { background: var(--border); }
+  .qty-val {
+    min-width: 32px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .qty-unit { font-size: 11px; color: var(--muted); min-width: 20px; }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .summary-label { font-size: 12px; color: var(--muted); }
+  .summary-val { font-size: 20px; font-weight: 700; color: var(--accent); }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-family: 'Rubik', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: #fff;
+  }
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* OMBOR PAGE */
+  .ombor-filter {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .filter-chip.active {
+    background: rgba(79,142,247,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .ombor-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .ombor-item:last-child { border-bottom: none; }
+  .ombor-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-ok { background: var(--accent2); }
+  .dot-warn { background: var(--warn); }
+  .dot-danger { background: var(--danger); }
+  .ombor-name { flex: 1; font-size: 14px; }
+  .ombor-qty { font-size: 15px; font-weight: 700; color: var(--accent2); }
+  .ombor-unit { font-size: 11px; color: var(--muted); margin-left: 3px; }
+
+  /* TARIXI PAGE */
+  .tarixi-filter { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tarixi-filter select {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 13px;
+  }
+  .tarixi-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .tarixi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .tarixi-oshpaz { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .tarixi-sana { font-size: 11px; color: var(--muted); }
+  .tarixi-hodim { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .tarixi-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tarixi-chip {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  /* LOADING & EMPTY */
+  .loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--accent2); color: var(--accent2); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 16px 0 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+  </div>
+  <div>
+    <h1>Ombor</h1>
+    <p id="headerSub">Yuklanyapti...</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('krim')">
+    <span class="tab-icon">📦</span>Krim
+  </div>
+  <div class="tab" onclick="showTab('ombor')">
+    <span class="tab-icon">📊</span>Ombor
+  </div>
+  <div class="tab" onclick="showTab('tarixi')">
+    <span class="tab-icon">📋</span>Tarixi
+  </div>
+</div>
+
+<!-- KRIM PAGE -->
+<div id="page-krim" class="page active">
+  <div class="card">
+    <div class="card-title">Oshpazni tanlang</div>
+    <div class="oshpaz-grid" id="oshpazGrid">
+      <div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>
+    </div>
+  </div>
+
+  <div id="mahsulotSection" style="display:none">
+    <div class="summary-bar">
+      <div>
+        <div class="summary-label">Tanlangan mahsulotlar</div>
+        <div class="summary-val" id="selCount">0 ta</div>
+      </div>
+      <div style="text-align:right">
+        <div class="summary-label">Sana</div>
+        <div style="font-size:13px;font-weight:600" id="todayDate">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mahsulotlar</div>
+      <div id="mahsulotList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="savBtn" onclick="saveKrim()" disabled>
+      Tasdiqlash va saqlash
+    </button>
+    <div style="height:8px"></div>
+    <button class="btn btn-secondary" onclick="resetKrim()">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- OMBOR PAGE -->
+<div id="page-ombor" class="page">
+  <div class="ombor-filter" id="omborFilter">
+    <div class="filter-chip active" onclick="filterOmbor(null, this)">Hammasi</div>
+  </div>
+  <div id="omborList">
+    <div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>
+  </div>
+</div>
+
+<!-- TARIXI PAGE -->
+<div id="page-tarixi" class="page">
+  <div class="tarixi-filter">
+    <select id="tarixiOshpaz" onchange="loadTarixi()">
+      <option value="">Barcha oshpazlar</option>
+    </select>
+    <select id="tarixiSana" onchange="loadTarixi()">
+      <option value="">Barcha sanalar</option>
+    </select>
+  </div>
+  <div id="tarixiList">
+    <div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = {
+  oshpazlar: 'https://simle.app.n8n.cloud/webhook/11f388db-4203-4a2a-ab05-01b8e8e2de3d',
+  mahsulotlar: 'https://simle.app.n8n.cloud/webhook/02963f22-de91-4a1b-94bf-78817787d494',
+  holat: 'https://simle.app.n8n.cloud/webhook/145e3667-3091-4554-8fba-f797741f5851',
+  krim: 'https://simle.app.n8n.cloud/webhook/b5bf9585-cde0-4fe7-bc73-41666feda797',
+  tarixi: 'https://simle.app.n8n.cloud/webhook/66c333f9-cbce-4b68-a76d-993ec2f2a734'
+};
+
+// HODIM — bu yerga inventory user telegram_id yozing
+const HODIM_ID = 'inventory_user';
+
+let oshpazlar = [];
+let mahsulotlar = [];
+let selOshpaz = null;
+let qtys = {};
+
+// ===================== TABS =====================
+function showTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'ombor') loadOmbor();
+  if (tab === 'tarixi') loadTarixiInit();
+}
+
+// ===================== INIT =====================
+async function init() {
+  const today = new Date(new Date().getTime() + 5*3600*1000);
+  document.getElementById('todayDate').textContent =
+    today.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  try {
+    const [o, m] = await Promise.all([
+      fetch(API.oshpazlar).then(r => r.json()),
+      fetch(API.mahsulotlar).then(r => r.json())
+    ]);
+    oshpazlar = o.oshpazlar || [];
+    mahsulotlar = m.mahsulotlar || [];
+    document.getElementById('headerSub').textContent = oshpazlar.length + ' oshpaz • ' + mahsulotlar.length + ' mahsulot';
+    renderOshpazlar();
+  } catch(e) {
+    document.getElementById('headerSub').textContent = 'Xato yuz berdi';
+    showToast('Server bilan aloqa yo\'q', 'error');
+  }
+}
+
+// ===================== KRIM =====================
+function renderOshpazlar() {
+  const grid = document.getElementById('oshpazGrid');
+  if (!oshpazlar.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:13px">Oshpazlar topilmadi</div>'; return; }
+  grid.innerHTML = oshpazlar.map(o => {
+    const initials = o.ism.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+    return `<div class="oshpaz-btn" onclick="selectOshpaz('${o.id}', '${o.ism}', '${o.type}', this)">
+      <div class="oshpaz-avatar">${initials}</div>
+      <div class="oshpaz-name">${o.ism.split(' ')[0]}</div>
+      <div class="oshpaz-type">${o.type}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectOshpaz(id, ism, type, el) {
+  document.querySelectorAll('.oshpaz-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selOshpaz = { id, ism, type };
+  qtys = {};
+  document.getElementById('mahsulotSection').style.display = 'block';
+  renderMahsulotlar();
+  updateSummary();
+}
+
+function renderMahsulotlar() {
+  const list = document.getElementById('mahsulotList');
+  list.innerHTML = mahsulotlar.map(m => `
+    <div class="mahsulot-row">
+      <div class="mahsulot-info">
+        <div class="mahsulot-nom">${m.mahsulot}</div>
+        <div class="mahsulot-birlik">${m.birlik || ''}</div>
+      </div>
+      <div class="qty-ctrl">
+        <div class="qty-btn" onclick="changeQty('${m.mahsulot}', -1, '${m.birlik}')">−</div>
+        <div class="qty-val" id="qty-${m.mahsulot.replace(/\s/g,'_')}">${qtys[m.mahsulot] || 0}</div>
+        <div class="qty-btn" onclick="changeQty('${m.mahsulot}', 1, '${m.birlik}')">+</div>
+        <div class="qty-unit">${m.birlik || ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function changeQty(nom, delta, birlik) {
+  const key = nom;
+  const cur = qtys[key] || 0;
+  const next = Math.max(0, cur + delta);
+  if (next === 0) delete qtys[key];
+  else qtys[key] = next;
+  const el = document.getElementById('qty-' + nom.replace(/\s/g,'_'));
+  if (el) el.textContent = next;
+  updateSummary();
+}
+
+function updateSummary() {
+  const count = Object.keys(qtys).length;
+  document.getElementById('selCount').textContent = count + ' ta';
+  document.getElementById('savBtn').disabled = count === 0 || !selOshpaz;
+}
+
+async function saveKrim() {
+  if (!selOshpaz) return;
+  const items = Object.entries(qtys).map(([mahsulot, miqdor]) => ({
+    mahsulot,
+    miqdor,
+    birlik: mahsulotlar.find(m => m.mahsulot === mahsulot)?.birlik || ''
+  }));
+  if (!items.length) return;
+
+  document.getElementById('savBtn').disabled = true;
+  document.getElementById('savBtn').textContent = 'Saqlanmoqda...';
+
+  try {
+    const res = await fetch(API.krim, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oshpaz: selOshpaz.type, hodim: HODIM_ID, items })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('✅ Muvaffaqiyatli saqlandi!', 'success');
+      resetKrim();
+    } else {
+      throw new Error('Server xatosi');
+    }
+  } catch(e) {
+    showToast('❌ Xato yuz berdi', 'error');
+  } finally {
+    document.getElementById('savBtn').disabled = false;
+    document.getElementById('savBtn').textContent = 'Tasdiqlash va saqlash';
+  }
+}
+
+function resetKrim() {
+  selOshpaz = null;
+  qtys = {};
+  document.querySelectorAll('.oshpaz-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('mahsulotSection').style.display = 'none';
+}
+
+// ===================== OMBOR =====================
+let omborData = [];
+let omborFilter = null;
+
+async function loadOmbor() {
+  document.getElementById('omborList').innerHTML = '<div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>';
+  try {
+    const data = await fetch(API.holat).then(r => r.json());
+    omborData = data.ombor || [];
+    renderOmborFilter();
+    renderOmbor();
+  } catch(e) {
+    document.getElementById('omborList').innerHTML = '<div class="loading">Xato yuz berdi</div>';
+  }
+}
+
+function renderOmborFilter() {
+  const filter = document.getElementById('omborFilter');
+  const types = [...new Set(omborData.map(i => i.oshpaz).filter(Boolean))];
+  filter.innerHTML = '<div class="filter-chip active" onclick="filterOmbor(null, this)">Hammasi</div>' +
+    types.map(t => `<div class="filter-chip" onclick="filterOmbor('${t}', this)">${t}</div>`).join('');
+}
+
+function filterOmbor(type, el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  omborFilter = type;
+  renderOmbor();
+}
+
+function renderOmbor() {
+  const list = document.getElementById('omborList');
+  const items = omborFilter ? omborData.filter(i => i.oshpaz === omborFilter) : omborData;
+  if (!items.length) { list.innerHTML = '<div class="loading">Ma\'lumot yo\'q</div>'; return; }
+
+  const grouped = {};
+  items.forEach(i => {
+    if (!grouped[i.oshpaz]) grouped[i.oshpaz] = [];
+    grouped[i.oshpaz].push(i);
+  });
+
+  list.innerHTML = Object.entries(grouped).map(([oshpaz, rows]) => `
+    <div class="section-label">${oshpaz}</div>
+    <div class="card" style="padding:8px 14px">
+      ${rows.map(r => {
+        const qty = parseFloat(r.miqdor) || 0;
+        const dotClass = qty > 10 ? 'dot-ok' : qty > 3 ? 'dot-warn' : 'dot-danger';
+        return `<div class="ombor-item">
+          <div class="ombor-dot ${dotClass}"></div>
+          <div class="ombor-name">${r.mahsulot}</div>
+          <span class="ombor-qty">${r.miqdor}</span>
+          <span class="ombor-unit">${r.birlik || ''}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+// ===================== TARIXI =====================
+async function loadTarixiInit() {
+  const selOshpaz = document.getElementById('tarixiOshpaz');
+  if (selOshpaz.options.length < 2) {
+    oshpazlar.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.type;
+      opt.textContent = o.ism + ' (' + o.type + ')';
+      selOshpaz.appendChild(opt);
+    });
+  }
+  loadTarixi();
+}
+
+async function loadTarixi() {
+  document.getElementById('tarixiList').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const oshpaz = document.getElementById('tarixiOshpaz').value;
+  const sana = document.getElementById('tarixiSana').value;
+
+  let url = API.tarixi;
+  const params = new URLSearchParams();
+  if (oshpaz) params.set('oshpaz', oshpaz);
+  if (sana) params.set('sana', sana);
+  if (params.toString()) url += '?' + params.toString();
+
+  try {
+    const data = await fetch(url).then(r => r.json());
+    const tarixi = data.tarixi || [];
+
+    // Sanalarni yig'ish
+    const sanas = [...new Set(tarixi.map(i => i.sana).filter(Boolean))].sort().reverse();
+    const sanaSel = document.getElementById('tarixiSana');
+    const curSana = sanaSel.value;
+    sanaSel.innerHTML = '<option value="">Barcha sanalar</option>' +
+      sanas.map(s => `<option value="${s}" ${s===curSana?'selected':''}>${s}</option>`).join('');
+
+    // Guruhlab ko'rsatish
+    const grouped = {};
+    tarixi.forEach(i => {
+      const key = i.sana + '|' + i.oshpaz + '|' + i.hodim;
+      if (!grouped[key]) grouped[key] = { sana: i.sana, oshpaz: i.oshpaz, hodim: i.hodim, items: [] };
+      grouped[key].items.push({ mahsulot: i.mahsulot, miqdor: i.miqdor, birlik: i.birlik });
+    });
+
+    const list = document.getElementById('tarixiList');
+    if (!Object.keys(grouped).length) { list.innerHTML = '<div class="loading">Ma\'lumot yo\'q</div>'; return; }
+
+    list.innerHTML = Object.values(grouped).sort((a,b) => b.sana.localeCompare(a.sana)).map(g => `
+      <div class="tarixi-item">
+        <div class="tarixi-header">
+          <span class="tarixi-oshpaz">${g.oshpaz}</span>
+          <span class="tarixi-sana">${g.sana}</span>
+        </div>
+        <div class="tarixi-hodim">Hodim: ${g.hodim}</div>
+        <div class="tarixi-items">
+          ${g.items.map(i => `<span class="tarixi-chip">${i.mahsulot} — ${i.miqdor} ${i.birlik||''}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('tarixiList').innerHTML = '<div class="loading">Xato yuz berdi</div>';
+  }
+}
+
+// ===================== TOAST =====================
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// START
+init();
+</script>
+</body>
+</html>
