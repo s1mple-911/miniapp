@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ombor — AROS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#0d0d0d;color:#e8f5ec;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:#0a1a0e;padding:11px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:1px solid #152a18}
+.hdr-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e88}
+.hdr-title{font-size:15px;font-weight:700;color:#e8f5ec;flex:1}
+.aros{background:#22c55e;color:#052e0f;font-size:9px;font-weight:800;padding:3px 9px;border-radius:10px;letter-spacing:1px}
+
+/* TABS */
+.tabs{display:flex;background:#080f09;border-bottom:1px solid #111a13}
+.tab{flex:1;padding:10px 4px 9px;text-align:center;font-size:10px;font-weight:600;color:#2d5e38;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab.active{color:#22c55e;border-bottom-color:#22c55e;background:rgba(34,197,94,.06)}
+.tab-ic{font-size:16px}
+.page{display:none;padding:14px;animation:fi .2s ease}
+.page.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* STEP BAR */
+.steps{display:flex;align-items:center;padding:14px 16px 12px;gap:0}
+.step-wrap{display:flex;align-items:center;flex:1}
+.step-wrap:last-child{flex:none}
+.s-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .3s}
+.s-circle.done{background:#22c55e;color:#052e0f}
+.s-circle.active{background:rgba(34,197,94,.15);border:1.5px solid #22c55e;color:#22c55e}
+.s-circle.idle{background:#0d1e10;border:1px solid #1a3a20;color:#2d5e38}
+.s-line{flex:1;height:1px;background:#1a3020;margin:0 6px;transition:background .3s}
+.s-line.done{background:#22c55e}
+.step-labels{display:flex;justify-content:space-between;padding:0 16px 10px}
+.step-label{font-size:9px;font-weight:600;text-align:center;width:60px;transition:color .3s}
+.step-label.active{color:#22c55e}
+.step-label.done{color:#22c55e}
+.step-label.idle{color:#2d5e38}
+
+/* OSHPAZ PILLS */
+.osh-scroll{display:flex;gap:8px;padding:2px 16px 16px;overflow-x:auto;scrollbar-width:none}
+.osh-scroll::-webkit-scrollbar{display:none}
+.osh-pill{flex-shrink:0;background:#0d1e10;border:1.5px solid #1a3a20;border-radius:40px;padding:8px 14px 8px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s}
+.osh-pill.sel{background:#052e0f;border-color:#22c55e;box-shadow:0 0 0 1px #22c55e}
+.osh-pill:active{transform:scale(.97)}
+.osh-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#163b1e,#0a2010);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4ade80;border:1px solid #1a4020;flex-shrink:0}
+.osh-nm{font-size:12px;font-weight:600;color:#c8f0d0;white-space:nowrap}
+.osh-chk{width:16px;height:16px;border-radius:50%;background:#22c55e;display:none;align-items:center;justify-content:center;font-size:9px;color:#052e0f;font-weight:800;flex-shrink:0}
+.osh-pill.sel .osh-chk{display:flex}
+
+/* MAHSULOT STEP */
+.sec-label{font-size:9px;font-weight:700;color:#2d5e38;text-transform:uppercase;letter-spacing:.6px;padding:0 2px 10px}
+.prod-list{display:flex;flex-direction:column;gap:6px}
+.prod-row{background:#0d1e10;border:1px solid #152a18;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
+.prod-row.has-qty{border-color:#22c55e;background:#071409}
+.p-icon{width:34px;height:34px;border-radius:9px;background:#0a1a0e;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.p-info{flex:1}
+.p-name{font-size:13px;font-weight:600;color:#d0eed8}
+.p-unit{font-size:10px;color:#2d5e38;margin-top:1px}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.q-btn{width:28px;height:28px;border-radius:8px;background:#0a2010;border:1px solid #1a4020;display:flex;align-items:center;justify-content:center;font-size:16px;color:#22c55e;font-weight:700;cursor:pointer;transition:all .1s;flex-shrink:0}
+.q-btn:active{background:#0f2e16;transform:scale(.93)}
+.q-val{font-size:15px;font-weight:700;color:#4ade80;min-width:24px;text-align:center}
+.q-birlik{background:#0a2010;border:1px solid #1a4020;border-radius:7px;color:#4ade80;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;padding:4px 6px;max-width:56px;cursor:pointer}
+.q-birlik:focus{outline:none;border-color:#22c55e}
+
+/* BOTTOM BAR */
+.bot-bar{background:#0a1a0e;border-top:1px solid #152a18;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:14px;border-radius:14px}
+.bb-info{flex:1}
+.bb-count{font-size:10px;color:#2d5e38;margin-bottom:2px}
+.bb-items{font-size:12px;font-weight:600;color:#4ade80;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb-btn{background:#22c55e;color:#052e0f;font-size:12px;font-weight:800;padding:11px 16px;border-radius:12px;cursor:pointer;white-space:nowrap;border:none;transition:all .15s}
+.bb-btn:active{transform:scale(.97);opacity:.9}
+.bb-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* CONFIRM STEP */
+.confirm-box{background:#071409;border:1px solid #1a3a20;border-radius:16px;padding:14px;margin-bottom:12px}
+.conf-osh{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid #152a18;margin-bottom:12px}
+.conf-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#163b1e,#0a2010);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#4ade80;border:1.5px solid #22c55e}
+.conf-nm{font-size:14px;font-weight:700;color:#e8f5ec}
+.conf-tp{font-size:11px;color:#2d5e38}
+.conf-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #111a13}
+.conf-row:last-child{border-bottom:none}
+.conf-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.conf-name{flex:1;font-size:13px;color:#c8f0d0}
+.conf-qty{font-size:13px;font-weight:700;color:#4ade80}
+.conf-unit{font-size:10px;color:#2d5e38;margin-left:3px}
+.btn-confirm{width:100%;background:#22c55e;color:#052e0f;font-size:15px;font-weight:800;border:none;border-radius:14px;padding:15px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.btn-confirm:active{transform:scale(.98);opacity:.9}
+.btn-confirm:disabled{opacity:.35;cursor:not-allowed}
+.btn-back{width:100%;background:#0d1e10;color:#4a7558;font-size:14px;font-weight:500;border:1px solid #1a3a20;border-radius:14px;padding:12px;cursor:pointer}
+
+/* SUCCESS */
+.success-box{text-align:center;padding:32px 16px}
+.s-icon{font-size:56px;margin-bottom:14px;display:block;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.s-title{font-size:18px;font-weight:800;color:#22c55e;margin-bottom:6px}
+.s-sub{font-size:13px;color:#2d5e38;margin-bottom:24px}
+.btn-new{background:#22c55e;color:#052e0f;font-size:14px;font-weight:700;border:none;border-radius:14px;padding:13px 32px;cursor:pointer}
+
+/* OMBOR PAGE */
+.filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.fc{padding:5px 12px;border-radius:16px;font-size:10px;font-weight:600;border:1px solid #1a3a20;background:#0d1e10;color:#2d5e38;cursor:pointer;transition:all .15s}
+.fc.active{background:rgba(34,197,94,.12);border-color:#22c55e;color:#22c55e}
+.o-section{margin-bottom:12px}
+.o-sec-hd{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.o-sec-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.o-sec-nm{font-size:12px;font-weight:700;color:#4ade80;flex:1}
+.o-sec-ct{font-size:10px;color:#2d5e38;background:#0d1e10;border:1px solid #1a3a20;border-radius:8px;padding:2px 7px}
+.o-card{background:#0d1e10;border:1px solid #152a18;border-radius:12px;overflow:hidden}
+.o-row{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #0f1f13}
+.o-row:last-child{border-bottom:none}
+.o-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ok{background:#22c55e}.wrn{background:#eab308}.dng{background:#ef4444}
+.o-name{flex:1;font-size:13px;color:#c8f0d0;font-weight:500}
+.o-qty{font-size:14px;font-weight:700;color:#4ade80}
+.o-unit{font-size:10px;color:#2d5e38;margin-left:3px}
+.refresh-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:#0a1a0e;border:1px solid #1a3a20;border-radius:10px;padding:8px;margin-top:8px;color:#22c55e;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.refresh-btn:active{opacity:.7}
+
+/* TARIXI PAGE */
+.t-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.t-stat{background:#0d1e10;border:1px solid #152a18;border-radius:12px;padding:11px 12px}
+.t-stat-label{font-size:10px;color:#2d5e38;margin-bottom:3px}
+.t-stat-val{font-size:18px;font-weight:800;color:#22c55e}
+.t-filters{display:flex;gap:7px;margin-bottom:12px}
+.t-sel{flex:1;background:#0d1e10;border:1px solid #1a3a20;border-radius:9px;color:#c8f0d0;padding:8px 10px;font-family:'Inter',sans-serif;font-size:11px}
+.t-sel:focus{outline:none;border-color:#22c55e}
+.t-card{background:#0d1e10;border:1px solid #152a18;border-radius:12px;padding:12px;margin-bottom:8px}
+.t-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
+.t-osh{font-size:12px;font-weight:700;color:#4ade80}
+.t-sana{font-size:10px;color:#2d5e38;background:#071409;border:1px solid #1a3a20;padding:2px 7px;border-radius:6px}
+.t-hodim{font-size:10px;color:#2d5e38;margin-bottom:8px}
+.t-chips{display:flex;flex-wrap:wrap;gap:5px}
+.t-chip{background:#071409;border:1px solid #1a3a20;border-radius:7px;padding:3px 9px;font-size:10px;color:#7acc90}
+
+/* LOADING / EMPTY */
+.loading{text-align:center;padding:36px 16px;color:#2d5e38;font-size:13px}
+.spinner{width:26px;height:26px;border:2px solid #1a3a20;border-top-color:#22c55e;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:40px 16px}
+.empty-icon{font-size:38px;margin-bottom:10px}
+.empty-txt{font-size:13px;color:#2d5e38}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);border-radius:12px;padding:10px 18px;font-size:12px;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:#052e0f;border:1px solid #22c55e;color:#4ade80}
+.toast.error{background:#1c0606;border:1px solid #ef4444;color:#fca5a5}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-dot"></div>
+  <div class="hdr-title">Ombor boshqaruvi</div>
+  <div class="aros">AROS</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('krim',this)"><span class="tab-ic">📦</span>Krim</div>
+  <div class="tab" onclick="showTab('ombor',this)"><span class="tab-ic">📊</span>Ombor</div>
+  <div class="tab" onclick="showTab('tarixi',this)"><span class="tab-ic">📋</span>Tarixi</div>
+</div>
+
+<!-- ===== KRIM PAGE ===== -->
+<div id="page-krim" class="page active">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps">
+    <div class="step-wrap">
+      <div class="s-circle active" id="s1">1</div>
+      <div class="s-line" id="sl1"></div>
+    </div>
+    <div class="step-wrap">
+      <div class="s-circle idle" id="s2">2</div>
+      <div class="s-line" id="sl2"></div>
+    </div>
+    <div class="s-circle idle" id="s3">3</div>
+  </div>
+  <div class="step-labels">
+    <span class="step-label active" id="sl-1">Oshpaz</span>
+    <span class="step-label idle" id="sl-2">Mahsulot</span>
+    <span class="step-label idle" id="sl-3">Tasdiqlash</span>
+  </div>
+
+  <!-- STEP 1: OSHPAZ -->
+  <div id="step1">
+    <div class="sec-label">Oshpazni tanlang</div>
+    <div class="osh-scroll" id="oshpazGrid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: MAHSULOTLAR -->
+  <div id="step2" style="display:none">
+    <div class="sec-label" id="step2Label">Mahsulotlar</div>
+    <div class="prod-list" id="prodList">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div class="bot-bar">
+      <div class="bb-info">
+        <div class="bb-count" id="bbCount">0 ta tanlangan</div>
+        <div class="bb-items" id="bbItems">Mahsulot tanlang</div>
+      </div>
+      <button class="bb-btn" id="bbBtn" onclick="goStep3()" disabled>Davom →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONFIRM -->
+  <div id="step3" style="display:none">
+    <div class="confirm-box" id="confirmBox"></div>
+    <button class="btn-confirm" id="confirmBtn" onclick="saveKrim()">✓ Tasdiqlash va saqlash</button>
+    <button class="btn-back" onclick="goStep2()">← Orqaga</button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="stepSuccess" style="display:none">
+    <div class="success-box">
+      <span class="s-icon">✅</span>
+      <div class="s-title">Muvaffaqiyatli saqlandi!</div>
+      <div class="s-sub" id="successSub"></div>
+      <button class="btn-new" onclick="resetKrim()">+ Yangi krim</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OMBOR PAGE ===== -->
+<div id="page-ombor" class="page">
+  <div class="filter-row" id="omborFilter">
+    <div class="fc active" onclick="filterOmbor(null,this)">Hammasi</div>
+  </div>
+  <div id="omborList"><div class="loading"><div class="spinner"></div>Yuklanmoqda...</div></div>
+  <div class="refresh-btn" onclick="loadOmbor()">↻ Yangilash</div>
+</div>
+
+<!-- ===== TARIXI PAGE ===== -->
+<div id="page-tarixi" class="page">
+  <div class="t-stats">
+    <div class="t-stat"><div class="t-stat-label">Jami krimlar</div><div class="t-stat-val" id="tarixiTotal">—</div></div>
+    <div class="t-stat"><div class="t-stat-label">So'nggi sana</div><div class="t-stat-val" style="font-size:13px;padding-top:4px" id="tarixiLast">—</div></div>
+  </div>
+  <div class="t-filters">
+    <select class="t-sel" id="tarixiOshpaz" onchange="loadTarixi()"><option value="">Barcha oshpazlar</option></select>
+    <select class="t-sel" id="tarixiSana" onchange="loadTarixi()"><option value="">Barcha sanalar</option></select>
+  </div>
+  <div id="tarixiList"><div class="loading"><div class="spinner"></div></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = {
+  oshpazlar:'https://simle.app.n8n.cloud/webhook/11f388db-4203-4a2a-ab05-01b8e8e2de3d',
+  mahsulotlar:'https://simle.app.n8n.cloud/webhook/02963f22-de91-4a1b-94bf-78817787d494',
+  holat:'https://simle.app.n8n.cloud/webhook/145e3667-3091-4554-8fba-f797741f5851',
+  krim:'https://simle.app.n8n.cloud/webhook/b5bf9585-cde0-4fe7-bc73-41666feda797',
+  tarixi:'https://simle.app.n8n.cloud/webhook/66c333f9-cbce-4b68-a76d-993ec2f2a734'
+};
+const HODIM_ID = 'inventory_user';
+
+let oshpazlar=[], mahsulotlar=[], selOshpaz=null, qtys={};
+let omborData=[], omborFil=null;
+const parse=d=>Array.isArray(d)?d[0]:d;
+
+/* ===== TABS ===== */
+function showTab(tab,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  el.classList.add('active');
+  if(tab==='ombor')loadOmbor();
+  if(tab==='tarixi')initTarixi();
+}
+
+/* ===== INIT ===== */
+async function init(){
+  try{
+    const[o,m]=await Promise.all([
+      fetch(API.oshpazlar).then(r=>r.json()),
+      fetch(API.mahsulotlar).then(r=>r.json())
+    ]);
+    oshpazlar=parse(o).oshpazlar||[];
+    mahsulotlar=parse(m).mahsulotlar||[];
+    renderOshpazlar();
+  }catch(e){toast('Serverga ulanib bo\'lmadi','error');}
+}
+
+/* ===== STEP MANAGEMENT ===== */
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const c=document.getElementById('s'+i);
+    const l=document.getElementById('sl'+i);
+    const lb=document.getElementById('sl-'+i);
+    if(i<n){c.className='s-circle done';c.textContent='✓';if(l)l.classList.add('done');}
+    else if(i===n){c.className='s-circle active';c.textContent=i;if(l)l.classList.remove('done');}
+    else{c.className='s-circle idle';c.textContent=i;if(l)l.classList.remove('done');}
+    lb.className='step-label '+(i<n?'done':i===n?'active':'idle');
+  });
+  document.getElementById('step1').style.display=n===1?'block':'none';
+  document.getElementById('step2').style.display=n===2?'block':'none';
+  document.getElementById('step3').style.display=n===3?'block':'none';
+  document.getElementById('stepSuccess').style.display='none';
+}
+
+/* ===== KRIM ===== */
+function renderOshpazlar(){
+  const g=document.getElementById('oshpazGrid');
+  if(!oshpazlar.length){g.innerHTML='<div class="empty"><div class="empty-icon">👨‍🍳</div><div class="empty-txt">Oshpazlar topilmadi</div></div>';return;}
+  g.innerHTML=oshpazlar.map(o=>{
+    const ini=o.ism.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    const nm=o.ism.split(' ');
+    const short=nm[0]+(nm[1]?' '+nm[1][0]+'.':'');
+    return `<div class="osh-pill" onclick="selectOshpaz('${o.id}','${o.ism.replace(/'/g,"\\'")}','${o.type}',this)">
+      <div class="osh-av">${ini}</div>
+      <div class="osh-nm">${short}</div>
+      <div class="osh-chk">✓</div>
+    </div>`;
+  }).join('');
+}
+
+function selectOshpaz(id,ism,type,el){
+  document.querySelectorAll('.osh-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  selOshpaz={id,ism,type};
+  qtys={};
+  setStep(2);
+  document.getElementById('step2Label').textContent=ism.split(' ')[0]+' uchun mahsulotlar';
+  renderProds();
+  updateBar();
+}
+
+function renderProds(){
+  const list=document.getElementById('prodList');
+  if(!mahsulotlar.length){list.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Mahsulotlar topilmadi</div></div>';return;}
+  const BIRLIKLAR=['kg','litr','dona','g','ml','paket','qop'];
+  list.innerHTML=mahsulotlar.map(m=>{
+    const key=m.mahsulot;
+    const cur=qtys[key]||{miqdor:0,birlik:m.birlik||'kg'};
+    const hasQ=cur.miqdor>0;
+    const birlikOpts=BIRLIKLAR.map(b=>`<option value="${b}"${b===cur.birlik?' selected':''}>${b}</option>`).join('');
+    return `<div class="prod-row${hasQ?' has-qty':''}" id="pr-${key.replace(/\s/g,'_')}">
+      <div class="p-info">
+        <div class="p-name">${m.mahsulot}</div>
+      </div>
+      <div class="qty-ctrl">
+        <div class="q-btn" onclick="chQty('${key}',-1)">−</div>
+        <div class="q-val" id="qv-${key.replace(/\s/g,'_')}">${cur.miqdor||0}</div>
+        <div class="q-btn" onclick="chQty('${key}',1)">+</div>
+        <select class="q-birlik" id="qb-${key.replace(/\s/g,'_')}" onchange="chBirlik('${key}',this.value)">${birlikOpts}</select>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function chQty(nom,delta){
+  const def=mahsulotlar.find(x=>x.mahsulot===nom)?.birlik||'kg';
+  const cur=qtys[nom]||{miqdor:0,birlik:def};
+  const next=Math.max(0,Math.round((cur.miqdor+delta)*10)/10);
+  if(next===0)delete qtys[nom];
+  else qtys[nom]={miqdor:next,birlik:cur.birlik};
+  const key=nom.replace(/\s/g,'_');
+  const el=document.getElementById('qv-'+key);
+  const row=document.getElementById('pr-'+key);
+  if(el)el.textContent=next||0;
+  if(row){if(next>0)row.classList.add('has-qty');else row.classList.remove('has-qty');}
+  updateBar();
+}
+function chBirlik(nom,birlik){
+  const def=mahsulotlar.find(x=>x.mahsulot===nom)?.birlik||'kg';
+  if(qtys[nom])qtys[nom].birlik=birlik;
+  else qtys[nom]={miqdor:0,birlik:birlik};
+}
+
+function updateBar(){
+  const keys=Object.keys(qtys);
+  const count=keys.length;
+  document.getElementById('bbCount').textContent=count+' ta mahsulot tanlandi';
+  document.getElementById('bbItems').textContent=count?keys.map(k=>k+' '+qtys[k].miqdor+' '+qtys[k].birlik).join(', '):'Mahsulot tanlang';
+  document.getElementById('bbBtn').disabled=count===0;
+}
+
+function goStep3(){
+  const keys=Object.keys(qtys);
+  if(!keys.length)return;
+  const ini=selOshpaz.ism.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+  document.getElementById('confirmBox').innerHTML=`
+    <div class="conf-osh">
+      <div class="conf-av">${ini}</div>
+      <div><div class="conf-nm">${selOshpaz.ism}</div><div class="conf-tp">${selOshpaz.type}</div></div>
+    </div>
+    ${keys.map(k=>`<div class="conf-row"><div class="conf-dot"></div><div class="conf-name">${k}</div><span class="conf-qty">${qtys[k].miqdor}</span><span class="conf-unit">${qtys[k].birlik}</span></div>`).join('')}
+  `;
+  setStep(3);
+}
+
+function goStep2(){setStep(2);renderProds();}
+
+async function saveKrim(){
+  const btn=document.getElementById('confirmBtn');
+  btn.disabled=true;btn.textContent='Saqlanmoqda...';
+  const items=Object.entries(qtys).filter(([_,v])=>v.miqdor>0).map(([mahsulot,v])=>({mahsulot,miqdor:v.miqdor,birlik:v.birlik}));
+  try{
+    const res=await fetch(API.krim,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oshpaz:selOshpaz.type,hodim:HODIM_ID,items})});
+    if(res.ok){
+      document.getElementById('step3').style.display='none';
+      document.getElementById('stepSuccess').style.display='block';
+      document.getElementById('successSub').textContent=selOshpaz.ism+' uchun '+items.length+' ta mahsulot yozildi';
+      [1,2,3].forEach(i=>{
+        document.getElementById('s'+i).className='s-circle done';
+        document.getElementById('s'+i).textContent='✓';
+        const l=document.getElementById('sl'+i);if(l)l.classList.add('done');
+        document.getElementById('sl-'+i).className='step-label done';
+      });
+    }else throw new Error(res.status);
+  }catch(e){toast('Xato: '+e.message,'error');btn.disabled=false;btn.textContent='✓ Tasdiqlash va saqlash';}
+}
+
+function resetKrim(){
+  selOshpaz=null;qtys={};
+  document.querySelectorAll('.osh-pill').forEach(p=>p.classList.remove('sel'));
+  document.getElementById('stepSuccess').style.display='none';
+  setStep(1);
+}
+
+/* ===== OMBOR ===== */
+async function loadOmbor(){
+  document.getElementById('omborList').innerHTML='<div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>';
+  try{
+    const raw=await fetch(API.holat).then(r=>r.json());
+    omborData=parse(raw).ombor||[];
+    buildOmborFilter();
+    renderOmbor();
+  }catch(e){document.getElementById('omborList').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Xato yuz berdi</div></div>';}
+}
+
+function buildOmborFilter(){
+  const types=[...new Set(omborData.map(i=>i.oshpaz).filter(Boolean))];
+  const om={};oshpazlar.forEach(o=>{om[o.type]=o.ism;});
+  document.getElementById('omborFilter').innerHTML=
+    '<div class="fc active" onclick="filterOmbor(null,this)">Hammasi</div>'+
+    types.map(t=>`<div class="fc" onclick="filterOmbor('${t}',this)">${om[t]?om[t].split(' ')[0]:t}</div>`).join('');
+}
+
+function filterOmbor(type,el){
+  document.querySelectorAll('.fc').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');omborFil=type;renderOmbor();
+}
+
+function renderOmbor(){
+  const list=document.getElementById('omborList');
+  const items=omborFil?omborData.filter(i=>i.oshpaz===omborFil):omborData;
+  if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Ombor bo\'sh</div></div>';return;}
+  const om={};oshpazlar.forEach(o=>{om[o.type]=o.ism;});
+  const grouped={};
+  items.forEach(i=>{if(!grouped[i.oshpaz])grouped[i.oshpaz]=[];grouped[i.oshpaz].push(i);});
+  list.innerHTML=Object.entries(grouped).map(([oshpaz,rows])=>`
+    <div class="o-section">
+      <div class="o-sec-hd">
+        <div class="o-sec-dot"></div>
+        <div class="o-sec-nm">${om[oshpaz]||oshpaz}</div>
+        <div class="o-sec-ct">${rows.length} ta</div>
+      </div>
+      <div class="o-card">
+        ${rows.map(r=>{
+          const q=parseFloat(r.miqdor)||0;
+          const cls=q>10?'ok':q>3?'wrn':'dng';
+          return `<div class="o-row"><div class="o-dot ${cls}"></div><div class="o-name">${r.mahsulot}</div><span class="o-qty">${r.miqdor}</span><span class="o-unit">${r.birlik||''}</span></div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===== TARIXI ===== */
+async function initTarixi(){
+  const sel=document.getElementById('tarixiOshpaz');
+  const om={};oshpazlar.forEach(o=>{om[o.type]=o.ism;});
+  if(sel.options.length<2){
+    oshpazlar.forEach(o=>{const opt=document.createElement('option');opt.value=o.type;opt.textContent=o.ism;sel.appendChild(opt);});
+  }
+  loadTarixi();
+}
+
+async function loadTarixi(){
+  document.getElementById('tarixiList').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  const oshpaz=document.getElementById('tarixiOshpaz').value;
+  const sana=document.getElementById('tarixiSana').value;
+  let url=API.tarixi;
+  const p=new URLSearchParams();
+  if(oshpaz)p.set('oshpaz',oshpaz);
+  if(sana)p.set('sana',sana);
+  if(p.toString())url+='?'+p.toString();
+  try{
+    const raw=await fetch(url).then(r=>r.json());
+    const tarixi=parse(raw).tarixi||[];
+    const om={};oshpazlar.forEach(o=>{om[o.type]=o.ism;});
+    const sanas=[...new Set(tarixi.map(i=>i.sana).filter(Boolean))].sort().reverse();
+    const sanaSel=document.getElementById('tarixiSana');
+    const cur=sanaSel.value;
+    sanaSel.innerHTML='<option value="">Barcha sanalar</option>'+sanas.map(s=>`<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('');
+    document.getElementById('tarixiTotal').textContent=tarixi.length;
+    document.getElementById('tarixiLast').textContent=sanas[0]||'—';
+    const grouped={};
+    tarixi.forEach(i=>{const k=i.sana+'|'+i.oshpaz;if(!grouped[k])grouped[k]={sana:i.sana,oshpaz:i.oshpaz,hodim:i.hodim,items:[]};grouped[k].items.push(i);});
+    const list=document.getElementById('tarixiList');
+    if(!Object.keys(grouped).length){list.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Yozuvlar yo\'q</div></div>';return;}
+    list.innerHTML=Object.values(grouped).sort((a,b)=>b.sana.localeCompare(a.sana)).map(g=>`
+      <div class="t-card">
+        <div class="t-head"><span class="t-osh">${om[g.oshpaz]||g.oshpaz}</span><span class="t-sana">${g.sana}</span></div>
+        <div class="t-hodim">Hodim: ${g.hodim||'—'}</div>
+        <div class="t-chips">${g.items.map(i=>`<span class="t-chip">${i.mahsulot} — ${i.miqdor} ${i.birlik||''}</span>`).join('')}</div>
+      </div>
+    `).join('');
+  }catch(e){document.getElementById('tarixiList').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Xato yuz berdi</div></div>';}
+}
+
+/* ===== TOAST ===== */
+let toastTm;
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  clearTimeout(toastTm);
+  toastTm=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+init();
+</script>
+</body>
+</html>
