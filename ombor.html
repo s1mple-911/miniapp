@@ -459,7 +459,8 @@ function filterOmbor(type,el){
 
 function renderOmbor(){
   const list=document.getElementById('omborList');
-  const items=omborFil?omborData.filter(i=>i.oshpaz===omborFil):omborData;
+  const allItems=omborFil?omborData.filter(i=>i.oshpaz===omborFil):omborData;
+  const items=allItems.filter(i=>i.mahsulot&&i.oshpaz&&String(i.mahsulot).trim()!==''&&String(i.oshpaz).trim()!==''&&i.mahsulot!=='mahsulot');
   if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Ombor bo\'sh</div></div>';return;}
   const om={};oshpazlar.forEach(o=>{om[o.type]=o.ism;});
   const grouped={};
